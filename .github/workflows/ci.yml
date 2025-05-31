@@ -1,4 +1,5 @@
 name: CI Pipeline
+
 on: [push, pull_request]
 
 jobs:
@@ -6,23 +7,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Полная история коммитов
-        
+
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libgtest-dev
-        
-    - name: Clean and Build
+
+    - name: Configure and Build
       run: |
         rm -rf build
         mkdir -p build
         cd build
         cmake ..
         make
-        
+
     - name: Run Tests
       run: |
         cd build
         ctest --output-on-failure
+
+    - name: Create DEB package
+      run: |
+        mkdir -p package/usr/bin
+        cp build/proxy_main package/usr/bin/
+        mkdir -p package/DEBIAN
+        cat > package/DEBIAN/control <<EOP
+        Package: proxy-pattern
+        Version: 1.0
+        Architecture: amd64
+        Maintainer: YAroslav10Ti
+        Description: Proxy Pattern Implementation
+        EOP
+        dpkg-deb --build package proxy-pattern.deb
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: proxy-pattern
+        path: proxy-pattern.deb
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: proxy-pattern.deb
+        body: "Automatic build of Proxy Pattern implementation"
