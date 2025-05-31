@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Install dependencies
       run: |
@@ -27,21 +27,17 @@ jobs:
         mkdir -p proxy-pattern/usr/bin
         cp build/proxy_main proxy-pattern/usr/bin/
         mkdir -p proxy-pattern/DEBIAN
-        echo "Package: proxy-pattern" > proxy-pattern/DEBIAN/control
-        echo "Version: 1.0" >> proxy-pattern/DEBIAN/control
-        echo "Architecture: amd64" >> proxy-pattern/DEBIAN/control
-        echo "Maintainer: YAroslav10Ti" >> proxy-pattern/DEBIAN/control
-        echo "Description: Proxy Pattern Implementation" >> proxy-pattern/DEBIAN/control
+        cat > proxy-pattern/DEBIAN/control <<EOP
+        Package: proxy-pattern
+        Version: 1.0
+        Architecture: amd64
+        Maintainer: YAroslav10Ti
+        Description: Proxy Pattern Implementation
+        EOP
         dpkg-deb --build proxy-pattern
         
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: proxy-pattern
         path: proxy-pattern.deb
-        
-    - name: Create Release
-      if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: proxy-pattern.deb
