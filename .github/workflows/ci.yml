@@ -1,71 +1,52 @@
+---
 name: CI Pipeline
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake libgtest-dev
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake libgtest-dev
 
-    - name: Configure and Build
-      run: |
-        mkdir -p build
-        cd build
-        cmake ..
-        make
+      - name: Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make
 
-    - name: Run Tests
-      run: |
-        cd build
-        ctest --output-on-failure || echo "Tests failed"
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
 
-    - name: Create DEB package
-    - name: Create DEB package
-      run: |
-        mkdir -p package/usr/bin package/DEBIAN
-        install -D build/proxy_main package/usr/bin/
-        cat > package/DEBIAN/control <<EOL
+      - name: Create DEB package
+        run: |
+          mkdir -p package/usr/bin package/DEBIAN
+          install -m 0755 -D build/proxy_main package/usr/bin/
+          cat <<EOL > package/DEBIAN/control
 Package: proxy-pattern
 Version: 1.0
 Architecture: amd64
 Maintainer: YAroslav10Ti
 Description: Proxy Pattern Implementation
 EOL
-        dpkg-deb --build package proxy-pattern.deb
-        ls -lh *.deb
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: proxy-pattern
-        path: |
-          package.deb
-          build/proxy_main
+          dpkg-deb --root-owner-group --build package
 
-    - name: Create Release
-      if: github.ref == 'refs/heads/main' && success()
-      uses: softprops/action-gh-release@v2
-      with:
-        files: package.deb
-        body: |
-          Автоматическая сборка:
-          - Версия: 1.0
-          - Дата: $(date -u +'%Y-%m-%d')
-          - Хеш коммита: ${{ github.sha }}
-
-    - name: Create Release
-      if: github.ref == 'refs/heads/main' && success()
-      uses: softprops/action-gh-release@v2
-      with:
-        files: package.deb
-        body: |
-          Автоматическая сборка:
-          - Версия: 1.0
-          - Дата: $(date -u +'%Y-%m-%d')
-          - Хеш коммита: ${{ github.sha }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-pattern
+          path: |
+            package.deb
+            build/proxy_main
