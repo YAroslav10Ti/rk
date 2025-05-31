@@ -27,20 +27,19 @@ jobs:
         ctest --output-on-failure || echo "Tests failed"
 
     - name: Create DEB package
-      if: success()  # Только если предыдущие шаги успешны
+    - name: Create DEB package
       run: |
-        mkdir -p package/usr/bin
+        mkdir -p package/usr/bin package/DEBIAN
         install -D build/proxy_main package/usr/bin/
-        mkdir -p package/DEBIAN
         cat > package/DEBIAN/control <<EOL
-        Package: proxy-pattern
-        Version: 1.0
-        Architecture: amd64
-        Maintainer: YAroslav10Ti
-        Description: Proxy Pattern Implementation
-        EOL
-        dpkg-deb --build package
-
+Package: proxy-pattern
+Version: 1.0
+Architecture: amd64
+Maintainer: YAroslav10Ti
+Description: Proxy Pattern Implementation
+EOL
+        dpkg-deb --build package proxy-pattern.deb
+        ls -lh *.deb
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -48,3 +47,25 @@ jobs:
         path: |
           package.deb
           build/proxy_main
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' && success()
+      uses: softprops/action-gh-release@v2
+      with:
+        files: package.deb
+        body: |
+          Автоматическая сборка:
+          - Версия: 1.0
+          - Дата: $(date -u +'%Y-%m-%d')
+          - Хеш коммита: ${{ github.sha }}
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' && success()
+      uses: softprops/action-gh-release@v2
+      with:
+        files: package.deb
+        body: |
+          Автоматическая сборка:
+          - Версия: 1.0
+          - Дата: $(date -u +'%Y-%m-%d')
+          - Хеш коммита: ${{ github.sha }}
