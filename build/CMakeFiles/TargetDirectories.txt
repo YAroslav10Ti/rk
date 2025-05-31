@@ -1,9 +1,0 @@
-/home/vboxuser/rk_proxy_pattern/build/CMakeFiles/proxy_pattern.dir
-/home/vboxuser/rk_proxy_pattern/build/CMakeFiles/proxy_main.dir
-/home/vboxuser/rk_proxy_pattern/build/CMakeFiles/test.dir
-/home/vboxuser/rk_proxy_pattern/build/CMakeFiles/edit_cache.dir
-/home/vboxuser/rk_proxy_pattern/build/CMakeFiles/rebuild_cache.dir
-/home/vboxuser/rk_proxy_pattern/build/tests/CMakeFiles/test_proxy.dir
-/home/vboxuser/rk_proxy_pattern/build/tests/CMakeFiles/test.dir
-/home/vboxuser/rk_proxy_pattern/build/tests/CMakeFiles/edit_cache.dir
-/home/vboxuser/rk_proxy_pattern/build/tests/CMakeFiles/rebuild_cache.dir
