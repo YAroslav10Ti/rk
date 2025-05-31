@@ -1,0 +1,5 @@
+Package: proxy-pattern
+Version: 1.0
+Architecture: amd64
+Maintainer: YAroslav10Ti <your.email@example.com>
+Description: Реализация шаблона Proxy для репозитория rk

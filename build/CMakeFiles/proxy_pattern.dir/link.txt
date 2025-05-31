@@ -1,0 +1,2 @@
+/usr/bin/ar qc libproxy_pattern.a CMakeFiles/proxy_pattern.dir/src/proxy.cpp.o CMakeFiles/proxy_pattern.dir/src/SchoolGirl.cpp.o
+/usr/bin/ranlib libproxy_pattern.a

@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_proxy.dir/test_proxy.cpp.o CMakeFiles/test_proxy.dir/test_SchoolGirl.cpp.o -o test_proxy  ../libproxy_pattern.a -lgtest -lgtest_main 
