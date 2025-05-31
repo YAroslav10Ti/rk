@@ -16,7 +16,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake libgtest-dev
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libgtest-dev \
+            tree
 
       - name: Build
         run: |
@@ -32,21 +36,35 @@ jobs:
 
       - name: Create DEB package
         run: |
-          mkdir -p package/usr/bin package/DEBIAN
-          install -m 0755 -D build/proxy_main package/usr/bin/
-          cat <<EOL > package/DEBIAN/control
+          # Создаем структуру пакета
+          mkdir -vp package/usr/bin package/DEBIAN
+          
+          # Устанавливаем бинарник
+          install -v -m 0755 build/proxy_main package/usr/bin/
+          
+          # Создаем control файл
+          cat <<EOL | tee package/DEBIAN/control
 Package: proxy-pattern
 Version: 1.0
 Architecture: amd64
 Maintainer: YAroslav10Ti
 Description: Proxy Pattern Implementation
 EOL
-          dpkg-deb --root-owner-group --build package
+
+          # Проверяем структуру
+          echo "=== Final package structure ==="
+          tree -a package/
+          
+          # Собираем пакет
+          dpkg-deb --root-owner-group --build package proxy-pattern.deb
+          
+          # Проверяем результат
+          dpkg -I proxy-pattern.deb
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: proxy-pattern
+          name: proxy-pkg
           path: |
-            package.deb
+            proxy-pattern.deb
             build/proxy_main
