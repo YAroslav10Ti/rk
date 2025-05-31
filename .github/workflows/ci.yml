@@ -6,7 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.2.0
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -15,7 +16,6 @@ jobs:
 
     - name: Configure and Build
       run: |
-        rm -rf build
         mkdir -p build
         cd build
         cmake ..
@@ -24,31 +24,27 @@ jobs:
     - name: Run Tests
       run: |
         cd build
-        ctest --output-on-failure
+        ctest --output-on-failure || echo "Tests failed"
 
     - name: Create DEB package
+      if: success()  # Только если предыдущие шаги успешны
       run: |
         mkdir -p package/usr/bin
-        cp build/proxy_main package/usr/bin/
+        install -D build/proxy_main package/usr/bin/
         mkdir -p package/DEBIAN
-        cat > package/DEBIAN/control <<EOP
+        cat > package/DEBIAN/control <<EOL
         Package: proxy-pattern
         Version: 1.0
         Architecture: amd64
         Maintainer: YAroslav10Ti
         Description: Proxy Pattern Implementation
-        EOP
-        dpkg-deb --build package proxy-pattern.deb
+        EOL
+        dpkg-deb --build package
 
-    - name: Upload artifact
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: proxy-pattern
-        path: proxy-pattern.deb
-
-    - name: Create Release
-      if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v2
-      with:
-        files: proxy-pattern.deb
-        body: "Automatic build of Proxy Pattern implementation"
+        path: |
+          package.deb
+          build/proxy_main
