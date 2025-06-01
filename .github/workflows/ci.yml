@@ -3,15 +3,16 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   pull_request:
-    branches: [main]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -31,21 +32,22 @@ jobs:
 
       - name: Create DEB package
         run: |
-          # Создаем структуру пакета
+          set -e
+          echo "=== Creating package structure ==="
           mkdir -p package/usr/bin package/DEBIAN
           
-          # Проверяем существование бинарника
+          echo "=== Verifying binary ==="
           if [ ! -f build/proxy_main ]; then
             echo "##[error]Binary file not found in build/"
             ls -l build/
             exit 1
           fi
           
-          # Копируем бинарник
+          echo "=== Installing binary ==="
           install -m 0755 build/proxy_main package/usr/bin/
           
-          # Создаем control файл
-          cat > package/DEBIAN/control <<EOL
+          echo "=== Creating control file ==="
+          cat <<'EOL' > package/DEBIAN/control
 Package: proxy-pattern
 Version: 1.0
 Architecture: amd64
@@ -53,10 +55,10 @@ Maintainer: YAroslav10Ti
 Description: Proxy Pattern Implementation
 EOL
           
-          # Собираем пакет
+          echo "=== Building package ==="
           dpkg-deb --root-owner-group --build package
           
-          # Проверяем результат
+          echo "=== Verifying package ==="
           dpkg -I package.deb
 
       - name: Upload artifacts
